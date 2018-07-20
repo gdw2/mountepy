@@ -37,7 +37,7 @@ class MountebankWrapper:
         return Imposter(self.port, imposter_cfg['port'], host=self.host)
 
     def add_imposter_simple(self, port=None, method='GET',  # pylint: disable=too-many-arguments
-                            path='/', status_code=200, response=''):
+                            path='/', status_code=200, response='', record_requests=False):
         """Adds an imposter with a single HTTP service stub to Mountebank instance.
         Takes a simplified configuration.
 
@@ -47,6 +47,7 @@ class MountebankWrapper:
             path (str): HTTP path the imposter will wait for. '/' by default.
             status_code (int): HTTP status code the imposter will return. 200 by default.
             response (str): body of the imposters response. Empty string by default.
+            record_requests (bool): Instructs the imposter to record the requests.
 
         Returns:
             `Imposter`: The newly created imposter.
@@ -56,20 +57,23 @@ class MountebankWrapper:
 
         return self.add_multi_stub_imposter_simple(
             port,
+            record_requests,
             [HttpStub(method, path, status_code, response)])
 
-    def add_multi_stub_imposter_simple(self, port, stubs):
+    def add_multi_stub_imposter_simple(self, port, record_requests, stubs):
         """Adds a Mountebank imposter with multiple HTTP stubs on one port.
         Takes a simplified configuration in comparison to `add_imposter`.
 
         Args:
             port (int): Port the imposter will listen on.
+            record_requests (bool): Instructs the imposter to record the requests.
             stubs (list[`HttpStub`]): HTTP stubs to be created on the port.
 
         Returns:
             `Imposter`: The newly created imposter.
         """
         imposter_config = {
+            'recordRequests': record_requests,
             'port': port,
             'protocol': 'http',
             'stubs': []
